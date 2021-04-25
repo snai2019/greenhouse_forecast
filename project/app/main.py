@@ -8,7 +8,24 @@ from preprocessing import getData, df_cutoff
 from send_sms import sendAlert
 import pandas as pd
 
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 templates = Jinja2Templates(directory = "templates")
 
@@ -54,7 +71,7 @@ def table():
 	return params_dict
 
 @app.post("/forecast")
-async def get_prediction(sensorId = 'Temp-81', showPeriod = 3, forecastTime = 3):
+async def get_prediction(sensorId = 'Temp-81', trainTime = 3, forecastTime = 180):
 	'''
 	Forecasting the sensor value
 	'''
@@ -62,7 +79,7 @@ async def get_prediction(sensorId = 'Temp-81', showPeriod = 3, forecastTime = 3)
 	df = getData(sensorId)
 
 	# Get data 3 days from last timestamp
-	df = df_cutoff(df, showPeriod)
+	df = df_cutoff(df, trainTime)
 
 	# Update table
 	parameters = ['EC-161', 'PH-181', 'Temp-81', 'Light-121', 'Co2-121', 'Temp-121', 'Hum-121']
@@ -73,7 +90,7 @@ async def get_prediction(sensorId = 'Temp-81', showPeriod = 3, forecastTime = 3)
 		last_value_dict[params] = getCurrentValue(params)
 
 	# Prediction
-	prediction_list = predict(df, parameter = sensorId, hours = forecastTime, retrain = True)
+	prediction_list = predict(df, parameter = sensorId, mins = forecastTime, retrain = True)
 
 	if not prediction_list:
 		raise HTTPException(status_code=400, detail="Model not found.")
@@ -82,12 +99,12 @@ async def get_prediction(sensorId = 'Temp-81', showPeriod = 3, forecastTime = 3)
 
 	writeToDatabase(forecastOut, sensorId)
 
-	# Alert
-	alertDict = {'EC-161': 500, 'PH-181': 50, 'Temp-81':30, 'Light-121':500, 'Co2-121':1000, 'Temp-121':30, 'Hum-121':500}
-	for data in forecastOut.values():
-		if data > alertDict[sensorId]:
-			sendAlert(sensorId)
-			break
+	# # Alert
+	# alertDict = {'EC-161': 500, 'PH-181': 50, 'Temp-81':30, 'Light-121':500, 'Co2-121':1000, 'Temp-121':30, 'Hum-121':500}
+	# for data in forecastOut.values():
+	# 	if data > alertDict[sensorId]:
+	# 		sendAlert(sensorId)
+	# 		break
 
 	response_object = {"parameter": sensorId, "data_dict": df.to_dict(), "table_dict": last_value_dict, "forecastOut": forecastOut}
 

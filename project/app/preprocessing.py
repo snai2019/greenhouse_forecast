@@ -12,11 +12,11 @@ connect(server_name, database_name)
 
 current_time = datetime.now()
 # Time to get the data
-def df_cutoff(df = None, showPeriod = 3):
+def df_cutoff(df = None, trainTime = 3):
     last_time = df.tail(1).ds
     last_time = pd.to_datetime(last_time)
     
-    last_N_days = last_time - timedelta(int(showPeriod))
+    last_N_days = last_time - timedelta(days = int(trainTime))
     last_N_days = last_N_days.values[0]
     df = df[df['ds']>=last_N_days]
     

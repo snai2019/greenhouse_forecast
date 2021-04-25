@@ -80,6 +80,7 @@ def writeToDatabase(forecastOut = {}, sensor = None):
     # create table 
     forecast = Table('forecast', 
         metadata, 
+        Column('ForecastID', Integer, primary_key=True),
         Column('Time',  DateTime), 
         Column('Sensor', String), 
         Column('Value', Float),)

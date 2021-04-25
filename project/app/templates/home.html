@@ -9,11 +9,11 @@
 </div>
 
 <div class="ui input">
-  <input id = "showPeriod" type="text" placeholder="Show period (days)">
+  <input id = "trainTime" type="text" placeholder="trainTime (days)">
 </div>
 
 <div class="ui input">
-    <input id = "forecastTime" type="text" placeholder="Forecasting time (hours)">
+    <input id = "forecastTime" type="text" placeholder="Forecasting time (minute)">
 </div>
 
 <button class="ui button primary" onclick="plotChart(); updateTable(); " >Forecast</button>
@@ -153,13 +153,13 @@
         // Get Input values from user
         var sensorId = document.getElementById("sensorId").value;
         var forecastTime =  document.getElementById("forecastTime").value;
-        var showPeriod = document.getElementById("showPeriod").value;
+        var trainTime = document.getElementById("trainTime").value;
 
         if (sensorId.length == 0) {sensorId = 'Temp-81'};
-        if (forecastTime.length == 0) {forecastTime = 3};
-        if (showPeriod.length == 0) {showPeriod = 3};
+        if (forecastTime.length == 0) {forecastTime = 180};
+        if (trainTime.length == 0) {trainTime = 3};
 
-        url = '/forecast?sensorId=' + sensorId + '&showPeriod=' + showPeriod + '&forecastTime=' + forecastTime ;
+        url = '/forecast?sensorId=' + sensorId + '&trainTime=' + trainTime + '&forecastTime=' + forecastTime ;
 
 
         var data = JSON.parse(Post(url));
