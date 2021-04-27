@@ -162,7 +162,7 @@
         url = '/forecast?sensorId=' + sensorId + '&trainTime=' + trainTime + '&forecastTime=' + forecastTime ;
 
 
-        var data = JSON.parse(Post(url));
+        var data = JSON.parse(Get(url));
         console.log(data);
 
         labels = Object.values(data.data_dict.ds);

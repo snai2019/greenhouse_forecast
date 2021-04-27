@@ -70,7 +70,7 @@ def table():
 	
 	return params_dict
 
-@app.post("/forecast")
+@app.get("/forecast")
 async def get_prediction(sensorId = 'Temp-81', trainTime = 3, forecastTime = 180):
 	'''
 	Forecasting the sensor value
