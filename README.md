@@ -3,6 +3,9 @@
 ## Want to learn how to build this?
 
 Check out the [post]().
+git add .
+git commit -m message
+git push origin main
 
 ## Want to use this project?
 
