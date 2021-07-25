@@ -18,7 +18,7 @@ def train(df=None, parameter = 'Temp-81'):
     joblib.dump(model, Path(BASE_DIR).joinpath(f"joblibs/{parameter}.joblib"))
 
 
-def predict(df = None, parameter="Temp-81", mins = 180, retrain = None):
+def predict(df = None, parameter="Temp-81", hours = 3, retrain = None):
     if retrain:
         train(df, parameter)
     
@@ -28,7 +28,7 @@ def predict(df = None, parameter="Temp-81", mins = 180, retrain = None):
 
     model = joblib.load(model_file)
 
-    df_forecast = model.make_future_dataframe(periods = int(mins), freq='T', include_history = True)
+    df_forecast = model.make_future_dataframe(periods = int(hours), freq='H', include_history = True)
     forecast = model.predict(df_forecast)
 
     model.plot(forecast).savefig(f"plots/{parameter}_plot.png")

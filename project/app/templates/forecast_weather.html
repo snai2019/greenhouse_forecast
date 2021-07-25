@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link rel="stylesheet" href={{url_for('static',path='/style_forecast_weather.css')}}>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <script type="text/javascript" src="../dynamic/forecast_weather.js"></script>
+    <title>Predictor</title>
+</head>
+
+<body>
+    <section>
+      <!-- Form section-->
+      <section id ="prediction-form">
+          <form class ="form">
+            <h1>Weather Forecaster</h1>
+            <div class="row">
+                <div class= "col">
+                    <div class="input">
+                        <label for="sensorId">Sensor Id</label>
+                        <select id="sensorId" name = "sensorId">
+                            <option value="Temp-81">Temp-81</option>
+                            <option value="Temp-121">Temp-121</option>
+                            <option value="Hum-121">Hum-121</option>
+                            <option value="Co2-121">Co2-121</option>
+                        </select>
+                    </div>
+                </div>
+                <div class= "col">
+                    <div class="input">
+                        <label for="trainTime">Training time</label>
+                        <input id = "trainTime" type="text" placeholder="trainTime (days)">
+                    </div>
+                </div>
+                <div class= "col">
+                    <div class="input">
+                        <label for="forecastTime">Projection</label>
+                        <input id = "forecastTime" type="text" placeholder="Projection (hours)">
+                    </div>
+                </div>              
+            </div>
+            <div class= "row">
+              <button onclick="plotChart(); return false;">Forecast</button>
+            </div>  
+          </form>
+      </section>
+    <!-- Get the data and draw chart using Plotly Js -->
+      <div id = "myChart">
+      </div>
+    </section>
+
+  </body>
+</html>
+
+
+
+

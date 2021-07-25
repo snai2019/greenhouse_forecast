@@ -1,11 +1,14 @@
+import uvicorn
+
 from fastapi import FastAPI, HTTPException, Request, Depends, BackgroundTasks
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-from model import convert, predict
+from model_weather import convert, predict
+from model_bitcoin import predict_bitcoin_value
 from database import connect, query, getCurrentValue, writeToDatabase
 from preprocessing import getData, df_cutoff
-from send_sms import sendAlert
 import pandas as pd
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,86 +30,93 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-templates = Jinja2Templates(directory = "templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/dynamic", StaticFiles(directory="dynamic"), name="dynamic")
 
-#pydantic models
+templates = Jinja2Templates(directory="templates")
+
+
+# pydantic models
 
 class parameterIn(BaseModel):
-	sensorId: str
-	showPeriod: int
-	forecastTime: int
+    sensorId: str
+    showPeriod: int
+    forecastTime: int
+
 
 class forecastOut(BaseModel):
-	sensorId: str
-	forecastOut: dict
+    sensorId: str
+    forecastOut: dict
 
-@app.get("/home")
+
+@app.get("/")
 def home(request: Request):
-	'''
-	Display the forecasting results
-	'''
-	# Update table
-	parameters = ['EC-161', 'PH-181', 'Temp-81', 'Light-121', 'Co2-121', 'Temp-121', 'Hum-121']
-	params_dict = {}
+    return templates.TemplateResponse("index.html", {
+        "request": request
+    })
 
-	for params in parameters:
-		params_dict[params] = getCurrentValue(params)
-	
-	return templates.TemplateResponse("home.html", {
-		"request": request,
-		"params_dict" : params_dict
-	})
 
-@app.get("/updateTable")
-def table():
-	'''
-	Update table value
-	'''
-	parameters = ['EC-161', 'PH-181', 'Temp-81', 'Light-121', 'Co2-121', 'Temp-121', 'Hum-121']
-	params_dict = {}
+@app.get("/forecast_weather")
+def forecast_weather(request: Request):
+    return templates.TemplateResponse("forecast_weather.html", {
+        "request": request
+    })
 
-	for params in parameters:
-		params_dict[params] = getCurrentValue(params)
-	
-	return params_dict
 
 @app.get("/forecast")
-async def get_prediction(sensorId = 'Temp-81', trainTime = 3, forecastTime = 180):
-	'''
+async def get_prediction(sensorId='Temp-81', trainTime=3, forecastTime=3):
+    '''
 	Forecasting the sensor value
 	'''
-	# Get df data
-	df = getData(sensorId)
+    # Get df data
+    df = getData(sensorId)
 
-	# Get data 3 days from last timestamp
-	df = df_cutoff(df, trainTime)
+    # Get data 3 days from last timestamp
+    df = df_cutoff(df, trainTime)
 
-	# Update table
-	parameters = ['EC-161', 'PH-181', 'Temp-81', 'Light-121', 'Co2-121', 'Temp-121', 'Hum-121']
-	
-	last_value_dict = {}
+    # Update table
+    parameters = ['EC-161', 'PH-181', 'Temp-81', 'Light-121', 'Co2-121', 'Temp-121', 'Hum-121']
 
-	for params in parameters:
-		last_value_dict[params] = getCurrentValue(params)
+    last_value_dict = {}
 
-	# Prediction
-	prediction_list = predict(df, parameter = sensorId, mins = forecastTime, retrain = True)
+    for params in parameters:
+        last_value_dict[params] = getCurrentValue(params)
 
-	if not prediction_list:
-		raise HTTPException(status_code=400, detail="Model not found.")
+    # Prediction
+    prediction_list = predict(df, sensorId, trainTime, True)
 
-	forecastOut = convert(prediction_list)
+    if not prediction_list:
+        raise HTTPException(status_code=400, detail="Model not found.")
 
-	writeToDatabase(forecastOut, sensorId)
+    forecastOut = convert(prediction_list)
 
-	# # Alert
-	# alertDict = {'EC-161': 500, 'PH-181': 50, 'Temp-81':30, 'Light-121':500, 'Co2-121':1000, 'Temp-121':30, 'Hum-121':500}
-	# for data in forecastOut.values():
-	# 	if data > alertDict[sensorId]:
-	# 		sendAlert(sensorId)
-	# 		break
+    writeToDatabase(forecastOut, sensorId)
 
-	response_object = {"parameter": sensorId, "data_dict": df.to_dict(), "table_dict": last_value_dict, "forecastOut": forecastOut}
+    response_object = {"parameter": sensorId, "data_dict": df.to_dict(), "table_dict": last_value_dict,
+                       "forecastOut": forecastOut}
+
+    return response_object
 
 
-	return response_object
+@app.get("/forecast_bitcoin")
+def forecast_bitcoin(request: Request):
+    return templates.TemplateResponse("forecast_bitcoin.html", {
+        "request": request
+    })
+
+
+@app.get("/predict_bitcoin")
+def predict_bitcoin():
+    real_predict_price = predict_bitcoin_value()
+
+    print(real_predict_price, type(real_predict_price))
+
+    predict_price = {"predict_price": real_predict_price}
+
+    response_object = {"real_predict_price": predict_price}
+
+    return response_object
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, log_level="info")

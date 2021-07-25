@@ -1,0 +1,82 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Poppins", sans-serif;
+	scroll-behavior: smooth;
+	scrollbar-width: thin;
+	--primary-color: #00b7c2;
+}
+
+body {
+	background-image: url(https://images.pexels.com/photos/209831/pexels-photo-209831.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940);
+    font-family: 'Poppins', sans-serif;
+}
+
+#prediction-form {
+    width: 80vw;
+    margin: auto;
+    padding: 30px 90px;
+    box-shadow: 0 5px 11px 0 rgba(0,0,0,0.18),0 4px 15px 0 rgba(0,0,0,0.15);
+    border-radius: 12px;
+}
+
+.form h1 {
+    color: #0f1ddd;
+}
+
+.form input[type=text], select {
+	width: 100%;
+	padding-top: 10px;
+	padding-right: 20px;
+	padding-bottom: 10px;
+	padding-left: 20px;
+	margin: 8px 0;
+	display: inline-block;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	box-sizing: border-box;
+}
+
+.form button {
+	/* remove default behavior */
+	appearance:none;
+	-webkit-appearance:none;
+  
+	/* usual styles */
+	padding:10px;
+	border:none;
+	background-color:#3F51B5;
+	color:#fff;
+	font-weight:600;
+	border-radius:5px;
+	width:100%;
+ }
+
+section {
+	margin: 10%;
+	position: relative;
+	width: 50%;
+	min-height: 50vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.label {
+	float: center;
+	width: 10em;
+	margin-right: 1em;
+	text-align: right;
+
+}
+
+#myChart {
+	position: relative;
+	left: 10px;
+	width: 160%;
+	min-height: 50vh;
+	padding-top: 10px;
+}
+
+
+/* --------- button ----------------------------------- */
